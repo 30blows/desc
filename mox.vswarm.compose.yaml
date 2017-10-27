@@ -88,7 +88,7 @@ services:
     depends_on:
     - redis
     deploy:
-      replicas: '2'
+      replicas: '3'
     expose:
     - '80'
     image: opsani/demo-vote:${vote_ver:-5.5.1.0}

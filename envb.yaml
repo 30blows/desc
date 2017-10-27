@@ -2,6 +2,6 @@ load_balancer_plugin: emulator
 vars:
     cat: "rhino"
     dog: "elephant"
-    vote_ver: "10.envb"
+    #vote_ver: "10.envb"
     result_port: "10010"
     voting_port: "10011"

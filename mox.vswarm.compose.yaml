@@ -24,7 +24,7 @@ services:
       target: /mox_mount/convent
       type: volume
     - read_only: true
-      source: /var/log
+      source: /var/log/apt
       target: /mox_mount/varlog
       type: bind
     - source: mox_test_wildwest

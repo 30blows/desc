@@ -3,3 +3,5 @@ vars:
     cat: "rhino"
     dog: "elephant"
     #vote_ver: "10.envb"
+    result_port: "10010"
+    voting_port: "10011"

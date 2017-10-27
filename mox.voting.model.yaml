@@ -1,0 +1,144 @@
+components:
+    busybox:
+        env:
+            "mox_test_env0" :  "bbx0"
+            "mox_test_env1" :  "bbx1"
+        image: busybox
+        labels:
+            mox_test_lbl0: bbx_lbl0
+            mox_test_lbl1: bbx_lbl1
+        plugin:
+            docker:
+                command: ["top", "-d", "5"]
+            docker-swarm:
+                command: ["top"]
+                args: ["-d", "5"]
+                default_network: false
+                networks:
+                    - target: mox_test_net0
+                      alias: bbx0
+                    - target: mox_test_net1
+                      Aliases: ["bbx1a","bbx1b","bbx1c"]
+                    - target: mox_test_net2
+                      Aliases: ["bbx2"]
+        provides:  # will show in docker model, not swarm
+            ports: [ "9001", "9002" ]
+        replicas: 1
+        visual:
+            x: 1100
+            y: 265
+        volumes:
+            mox_vol_varlog:
+                path: "/mox_mount/varlog"
+                readonly: true
+            mox_vol_wildwest:
+                path: "/mox_mount/wildwest"
+                readonly: false
+            mox_vol_convent:
+                path: "/mox_mount/convent"
+                readonly: true
+    db:
+        image: postgres:9.3
+        singleton: true
+        provides:
+            ports: [ "5432" ]
+        visual:
+            x: 750
+            y: 355
+        uses:
+            busybox: {}
+    redis:
+        image: redis:${redis_ver-3.2.3}
+        replicas: 1
+        provides:  # just 9003/9004 will show in docker model, none in swarm
+            ports: [ "9003", "9004", "6379" ]
+        labels:
+            mox_test_lbl0: rds_lbl0
+            mox_test_lbl1: rds_lbl1
+        volumes:
+            mox_vol_wildwest:
+                path: "/mox_mount/wildwest"
+                readonly: false
+            mox_vol_convent:
+                path: "/mox_mount/convent"
+                readonly: true
+            mox_vol_varlog:
+                path: "/mox_mount/varlog"
+                readonly: true
+        plugin:
+            docker-swarm:
+                networks:
+                    - target: mox_test_net1
+                      alias: rds1
+                    - target: mox_test_net2
+                      Aliases: ["bbx2"]
+                    - target: mox_test_net0
+                      Aliases: ["rds0a","rds0b","rds0c"]
+        env:
+            "mox_test_env0" :  "rds0"
+            "mox_test_env1" :  "rds1"
+        uses:
+            busybox: {}
+        visual:
+            x: 750
+            y: 165
+    result:
+        image: opsani/demo-result:${result_ver-latest}
+        singleton: true
+        provides:
+            ports: [ "80" ]  # causes singleton attr on discovery
+        uses:
+            db: {}
+        plugin:
+            docker-swarm:
+                networks:
+                    - target: mox_test_net2
+                      Aliases: ["bbx2"]
+                    - target: mox_test_net0
+                      Aliases: ["rds0a","rds0b","rds0c"]
+                    - target: mox_test_net1
+                      alias: rds1
+        visual:
+            x: 375
+            y: 450
+    worker:
+        image: opsani/demo-worker:${worker_ver-latest}
+        replicas: ${worker_replicas-3}
+        uses:
+            db: {}
+            redis: {}
+        visual:
+            x: 375
+            y: 260
+    vote:
+        image: opsani/demo-vote:${vote_ver-latest}
+        replicas: ${vote_replicas-3}
+        provides:
+            ports: [ "80" ]
+        uses:
+            redis: {}
+        visual:
+            x: 375
+            y: 70
+doctype: "com.datagridsys.doctype/skopos/model"
+gateways:
+    voting-gwy:
+        type: ${voting_gwy_type-host_port}
+        exposes:
+            - port: "${voting_port}/tcp"
+              target_port: "${voting_target_port-}"
+              remap: ${voting_remap-}
+        target: [vote]
+        visual:
+            x: 50
+            y: 70
+    result-gwy:
+        type: ${result_gwy_type-host_port}
+        exposes:
+            - port: "${result_port}/tcp"
+              target_port: "80"
+        target: [result]
+        visual:
+            x: 50
+            y: 450
+version: 1

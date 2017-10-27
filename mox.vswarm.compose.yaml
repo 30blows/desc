@@ -1,0 +1,116 @@
+version: '3'
+services:
+  busybox:
+    command:
+    - top
+    - -d
+    - '5'
+    deploy:
+      replicas: 1
+    environment:
+      mox_test_env0: bbx0
+      mox_test_env1: bbx1
+    expose:
+    - '9001'
+    - '9002'
+    image: busybox:latest
+    labels:
+      io.skopos.visual.position: 1100,265
+      mox_test_lbl0: bbx_lbl0
+      mox_test_lbl1: bbx_lbl1
+    volumes:
+    - read_only: true
+      source: mox_test_convent
+      target: /mox_mount/convent
+      type: volume
+    - read_only: true
+      source: /var/log
+      target: /mox_mount/varlog
+      type: bind
+    - source: mox_test_wildwest
+      target: /mox_mount/wildwest
+      type: volume
+  db:
+    depends_on:
+    - busybox
+    expose:
+    - '5432'
+    image: postgres:9.3
+    labels:
+      io.skopos.dt.busybox: _
+      io.skopos.singleton: '1'
+      io.skopos.visual.position: 750,355
+  redis:
+    depends_on:
+    - busybox
+    deploy:
+      replicas: 1
+    environment:
+      mox_test_env0: rds0
+      mox_test_env1: rds1
+    expose:
+    - '9003'
+    - '9004'
+    - '6379'
+    image: redis:3.2.2
+    labels:
+      io.skopos.dt.busybox: _
+      io.skopos.visual.position: 750,165
+      mox_test_lbl0: rds_lbl0
+      mox_test_lbl1: rds_lbl1
+    volumes:
+    - read_only: true
+      source: mox_test_convent
+      target: /mox_mount/convent
+      type: volume
+    - read_only: true
+      source: /var/log
+      target: /mox_mount/varlog
+      type: bind
+    - source: mox_test_wildwest
+      target: /mox_mount/wildwest
+      type: volume
+  result:
+    depends_on:
+    - db
+    expose:
+    - '80'
+    image: opsani/demo-result:1.0
+    labels:
+      io.skopos.dt.db: _
+      io.skopos.lb.name: result-gwy
+      io.skopos.lb.position: 50,450
+      io.skopos.singleton: '1'
+      io.skopos.visual.position: 375,450
+    ports:
+    - 10001/tcp:80
+  vote:
+    depends_on:
+    - redis
+    deploy:
+      replicas: '2'
+    expose:
+    - '80'
+    image: opsani/demo-vote:${vote_ver:-1.0}
+    labels:
+      io.skopos.dt.redis: _
+      io.skopos.lb.name: voting-gwy
+      io.skopos.lb.position: 50,70
+      io.skopos.visual.position: 375,70
+    ports:
+    - 10000/tcp:80
+  worker:
+    depends_on:
+    - db
+    - redis
+    deploy:
+      replicas: '2'
+    image: opsani/demo-worker:1.0
+    labels:
+      io.skopos.dt.db: _
+      io.skopos.dt.redis: _
+      io.skopos.visual.position: 375,260
+volumes:
+  mox_test_convent: null
+  mox_test_wildwest: null
+

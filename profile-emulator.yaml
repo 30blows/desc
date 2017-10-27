@@ -1,0 +1,5 @@
+core_plugin: emulator
+service_discovery_plugin: emulator
+service_discovery_auto: true
+load_balancer_plugin: emulator
+load_balancer_auto: false

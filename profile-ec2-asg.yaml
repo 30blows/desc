@@ -1,0 +1,3 @@
+core_plugin: ec2-asg
+load_balancer_plugin: ec2-asg
+load_balancer_auto: false

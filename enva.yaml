@@ -1,0 +1,4 @@
+load_balancer_plugin: ec2-asg
+vars:
+    cat: "cat"
+    dog: "dog"

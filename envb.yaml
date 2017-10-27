@@ -1,0 +1,5 @@
+load_balancer_plugin: emulator
+vars:
+    cat: "rhino"
+    dog: "elephant"
+    vote_ver: "2.0"

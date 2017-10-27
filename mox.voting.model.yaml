@@ -111,8 +111,8 @@ components:
             x: 375
             y: 260
     vote:
-        image: opsani/demo-vote:${vote_ver-4.444}
-        #image: opsani/demo-vote:${vote_ver-1.0}
+        #image: opsani/demo-vote:${vote_ver-4.444}
+        image: opsani/demo-vote:${vote_ver-1.0}
         replicas: ${vote_replicas-3}
         provides:
             ports: [ "80" ]

@@ -91,8 +91,8 @@ services:
       replicas: '3'
     expose:
     - '80'
-    #image: opsani/demo-vote:${vote_ver:-4.444}
-    image: opsani/demo-vote:${vote_ver:-1.0}
+    image: opsani/demo-vote:${vote_ver:-4.444}
+    #image: opsani/demo-vote:${vote_ver:-1.0}
     labels:
       io.skopos.dt.redis: _
       io.skopos.lb.name: voting-gwy
